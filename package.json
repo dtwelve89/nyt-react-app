@@ -1,0 +1,11 @@
+{
+  "name": "nyt-react",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Danny Ocean <danny.danh.nguyen@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.4",
+    "mongoose": "^5.3.3"
+  }
+}
