@@ -4,7 +4,6 @@ import Wrapper from "../../components/Wrapper";
 import Header from "../../components/Header";
 import Query from "../../components/Query";
 import Results from "../../components/Results";
-import Test from "../../components/Test";
 
 class Home extends Component {
   //Set initial state
@@ -55,7 +54,7 @@ class Home extends Component {
         date: this.state.articles[0].pub_date,
         url: this.state.articles[0].web_url
       })
-        .then(res => this.getArticles())
+        .then(res => console.log(res))
         .catch(err => console.log(err));
   };
 
@@ -69,10 +68,8 @@ class Home extends Component {
             handleInputChange={this.handleInputChange}
             handleFormSubmit={this.handleFormSubmit}
           />
-          {/* <Results 
-          /> */}
           {this.state.articles.map(article => (
-            <Test
+            <Results
               id={article.id}
               key={article.id}
               title={article.headline.main}
