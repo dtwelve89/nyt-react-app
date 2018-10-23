@@ -2,16 +2,21 @@ import React, { Component } from "react";
 import API from "../../utils/API";
 import Wrapper from "../../components/Wrapper";
 import Header from "../../components/Header";
-import Query from "../../components/Query";
-import Results from "../../components/Results";
+import Container from "../../components/Container";
+import { List, ListItem } from "../../components/List";
+import ActionBtn from "../../components/ActionBtn";
+import { Input, FormBtn} from "../../components/Form";
 
 class Home extends Component {
   //Set initial state
   state = {
-      articles: [],
-      topic: "",
-      // start: "",
-      // end: ""
+    articles: [],
+    topic: "",
+    start: "",
+    end: "",
+    title: "",
+    date: "",
+    url: ""
   };
 
   // Handles NYT API Function
@@ -46,38 +51,73 @@ class Home extends Component {
   };
 
   //Function to Save Articles
-  handleSave = id => {
-    console.log("It works!")
-    console.log(id);
+  saveArticle = () => {
     API.saveArticle({
-        title: this.state.articles[0].headline.main,
-        date: this.state.articles[0].pub_date,
-        url: this.state.articles[0].web_url
-      })
-        .then(res => console.log(res))
-        .catch(err => console.log(err));
-  };
+      title: this.state.title,
+      date: this.state.date,
+      url: this.state.url
+    })
+      .then(res => console.log(res))
+      .catch(err => console.log(err));
+    };
 
   render() {
     return (
       <div>
         <Wrapper>
           <Header />
-          <Query
-            value={this.state.topic}
-            handleInputChange={this.handleInputChange}
-            handleFormSubmit={this.handleFormSubmit}
-          />
-          {this.state.articles.map(article => (
-            <Results
-              id={article.id}
-              key={article.id}
-              title={article.headline.main}
-              url={article.web_url}
-              date={article.pub_date}
-              onChange={this.handleSave}
-            />
-          ))}
+          <Container
+            category="Query">
+            <form>
+              <Input
+                value={this.state.topic}
+                onChange={this.handleInputChange}
+                name="topic"
+                placeholder="Topic (required)"
+              />
+              <Input
+                value={this.state.start}
+                onChange={this.handleInputChange}
+                name="start"
+                placeholder="Start Date"
+              />
+              <Input
+                value={this.state.end}
+                onChange={this.handleInputChange}
+                name="end"
+                placeholder="End Date"
+              />
+              <FormBtn
+                disabled={!(this.state.topic)}
+                onClick={this.handleFormSubmit}
+              >
+              Search
+              </FormBtn>
+            </form>
+          </Container>
+          <Container
+            category="Results">
+            {this.state.articles.length ? (
+              <List>
+                {this.state.articles.map(article => (
+                  <ListItem key={article._id}>
+                    <ActionBtn action="Save Article" onClick={() => 
+                      (this.setState({
+                        title: article.headline.main, date: article.pub_date, url: article.url
+                      }))
+                      .then(this.saveArticle())} />
+                    <a href={article.url} rel="noopener noreferrer" target="_blank">
+                      <button className="btn btn-light float-right">View Article</button>
+                    </a>
+                    <h5 className="card-title">{article.headline.main}</h5>
+                    <h6 className="card-subtitle mb-2 text-muted">Published On: {article.pub_date}</h6>
+                  </ListItem>
+                ))}
+              </List>
+            ) : (
+              <h3>No Articles to Display</h3>
+            )}
+          </Container>
         </Wrapper>
       </div>
     );
