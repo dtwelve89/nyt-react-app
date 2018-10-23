@@ -6,6 +6,8 @@ import Container from "../../components/Container";
 import { List, ListItem } from "../../components/List";
 import ActionBtn from "../../components/ActionBtn";
 import { Input, FormBtn} from "../../components/Form";
+import Footer from "../../components/Footer";
+
 
 class Home extends Component {
   //Set initial state
@@ -14,23 +16,13 @@ class Home extends Component {
     topic: "",
     start: "",
     end: "",
-    title: "",
-    date: "",
-    url: ""
   };
 
   // Handles NYT API Function
-  searchArticles = query => {
-    API.search(query)
+  searchArticles = (topic, start, end) => {
+    API.search(topic, start, end)
       .then(response => {
-        var results;
-        console.log('response', response);
-        results = response.data.response.docs;
-        if (response.data.response.docs.length === 0) {
-          results = [
-            { headline: { main: "No Results" }, byline: { original: "" } }
-          ];
-        }
+        let results = response.data.response.docs;
         this.setState({ articles: results });
         console.log(this.state.articles);
       });
@@ -47,15 +39,22 @@ class Home extends Component {
   // When the form is submitted, search the NYT API for the value of `this.state.topic`
   handleFormSubmit = event => {
     event.preventDefault();
-    this.searchArticles(this.state.topic);
+    let topic = this.state.topic;
+    let start = this.state.start;
+    let end = this.state.end;
+    this.searchArticles(topic, start, end);
   };
 
   //Function to Save Articles
-  saveArticle = () => {
+  saveArticle = (article) => {
+    let Title = article.headline.main;
+    let PubDate = article.pub_date;
+    let WebUrl = article.web_url;
+
     API.saveArticle({
-      title: this.state.title,
-      date: this.state.date,
-      url: this.state.url
+      title: Title,
+      date: PubDate,
+      url: WebUrl
     })
       .then(res => console.log(res))
       .catch(err => console.log(err));
@@ -73,22 +72,22 @@ class Home extends Component {
                 value={this.state.topic}
                 onChange={this.handleInputChange}
                 name="topic"
-                placeholder="Topic (required)"
+                placeholder="Article Topic"
               />
               <Input
                 value={this.state.start}
                 onChange={this.handleInputChange}
                 name="start"
-                placeholder="Start Date"
+                placeholder="Start Date (YYYYMMDD)"
               />
               <Input
                 value={this.state.end}
                 onChange={this.handleInputChange}
                 name="end"
-                placeholder="End Date"
+                placeholder="End Date (YYYYMMDD)"
               />
               <FormBtn
-                disabled={!(this.state.topic)}
+                disabled={!(this.state.topic && this.state.start && this.state.end)}
                 onClick={this.handleFormSubmit}
               >
               Search
@@ -101,12 +100,8 @@ class Home extends Component {
               <List>
                 {this.state.articles.map(article => (
                   <ListItem key={article._id}>
-                    <ActionBtn action="Save Article" onClick={() => 
-                      (this.setState({
-                        title: article.headline.main, date: article.pub_date, url: article.url
-                      }))
-                      .then(this.saveArticle())} />
-                    <a href={article.url} rel="noopener noreferrer" target="_blank">
+                    <ActionBtn action="Save Article" onClick={() => this.saveArticle(article)} />
+                    <a href={article.web_url} rel="noopener noreferrer" target="_blank">
                       <button className="btn btn-light float-right">View Article</button>
                     </a>
                     <h5 className="card-title">{article.headline.main}</h5>
@@ -119,6 +114,7 @@ class Home extends Component {
             )}
           </Container>
         </Wrapper>
+        <Footer />
       </div>
     );
   }
